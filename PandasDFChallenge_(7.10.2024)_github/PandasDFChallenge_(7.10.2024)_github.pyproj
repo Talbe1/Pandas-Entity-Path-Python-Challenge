@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>54ebb99f-94b3-467f-a1d9-295e1acf4ce4</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PandasDFChallenge__7.10.2024__github.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PandasDFChallenge__7.10.2024__github.py" />
+    <Compile Include="Main.py" />
+    <Compile Include="RangedEntitiesFinder.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

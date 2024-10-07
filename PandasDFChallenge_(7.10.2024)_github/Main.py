@@ -13,13 +13,8 @@ if __name__ == "__main__":
     while max_distance_from_target != 's':
         if max_distance_from_target == 's': break
 
-        try: float(max_distance_from_target)
+        try: calcObj.locate_closest_entities_to_target(float(max_distance_from_target))
 
-        except ValueError:
-            print("You didn't enter a float or entered 's'! Please try again.")
-            max_distance_from_target = input("\nEnter max distance from target in km (or enter 's' to stop the program): ")
-            continue
-
-        calcObj.locate_closest_entities_to_target(float(max_distance_from_target))
+        except ValueError as ex: print(ex)
         
         max_distance_from_target = input("\nEnter max distance from target in km (or enter 's' to stop the program): ")

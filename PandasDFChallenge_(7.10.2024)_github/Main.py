@@ -6,7 +6,13 @@ if __name__ == "__main__":
     total_df = pd.read_excel(r"data/dataTables.xlsx", "total", converters={"id":str})
     sus_df = pd.read_excel(r"data/dataTables.xlsx", "sus", converters={"id":str})
 
+    #calcObj = rEF(total_df, sus_df)
+
+    (total_df, sus_df) = rEF.generate_data(5, 10, False)
+
     calcObj = rEF(total_df, sus_df)
+
+    print("test:",list(sus_df["id"])[0])
 
     max_distance_from_target = input("Enter max distance from target in km (or enter 's' to stop the program): ")
 

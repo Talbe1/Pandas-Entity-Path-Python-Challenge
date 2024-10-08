@@ -1,6 +1,9 @@
 from geopy import distance as gpy_distance
 import pandas as pd
 import math
+import numpy as np
+from datetime import datetime, timedelta
+import random as rand
 
 class ranged_entity_finder():
     total_df = pd.DataFrame # DataFrame that contains data about the path of entities including a target.
@@ -48,7 +51,7 @@ class ranged_entity_finder():
             return
 
         # Finding the target Id to drop from total_df for easier navigation in the data.
-        entity_id_to_filter = self.sus_df["id"][0]
+        entity_id_to_filter = list(self.sus_df["id"])[0]
 
         # Validating sus table.
         if all(self.sus_df["id"] != entity_id_to_filter):
@@ -71,11 +74,14 @@ class ranged_entity_finder():
         
         # Storing the coordinates (as points) as a Series of dictionary of tuples, stored in sus DataFrame.
         path_points_sus = self.sus_df.groupby(by=["ts"])[["lat", "long", "height"]].apply(dict)
+        print("total:", self.total_df)
+        print("sus:", self.sus_df)
 
         print("Format of coordinates: (latitude [deg], longitude [deg], height [km])\n")
 
         # Iterating over the path of the target entity.
         for current_ts in path_points_sus.keys():
+
             if current_ts not in path_crosses_grouped.index: continue
 
             # The current group of entities (except target) in the current timestamp.
@@ -111,3 +117,52 @@ class ranged_entity_finder():
                 print(*list(current_entities[1].values())[0], sep=", ", end=' ')
                 print(f"is/are close to target ({round(distance_calculated, 3)} km)!\n" 
                     + f"Entity(ies) coordinates:\t{current_entities[0]}\nTarget coordinates:\t\t{sus_location}\n")
+
+
+    @staticmethod
+    def generate_data(num_entities: int = 5, num_tracks: int = 10, rand_num_tracks: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+        if rand_num_tracks:
+            num_tracks = rand.randint(int(num_tracks / 2), num_tracks)
+        
+        # Generate a single set of timestamps
+        timestamps = [datetime.now() + timedelta(seconds=i) for i in range(num_tracks)]
+
+        # Initialize starting positions and linear increments
+        start_positions     = np.random.uniform(low=-90.0, high=90.0, size=(num_entities, 2))   # Starting lat and long
+        height_starts       = np.random.uniform(low=0.0, high=10000.0, size=num_entities)       # Starting height
+        lat_increment       = np.random.uniform(low=-0.1, high=0.1, size=num_entities)          # Lat change per step
+        long_increment      = np.random.uniform(low=-0.1, high=0.1, size=num_entities)          # Long change per step
+        height_increment    = np.random.uniform(low=-10.0, high=10.0, size=num_entities)        # Height change per step
+
+        # Generate data
+        data = {
+            "id": np.repeat(np.arange(1, num_entities + 1), num_tracks),
+            "ts": np.tile(timestamps, num_entities),
+            "lat": np.concatenate([
+                start_positions[i, 0] + lat_increment[i] * 
+                np.arange(num_tracks) for i in range(num_entities)
+            ]),
+            "long": np.concatenate([
+                start_positions[i, 1] + long_increment[i] * 
+                np.arange(num_tracks) for i in range(num_entities)
+            ]),
+            "height": np.concatenate([
+                height_starts[i] + height_increment[i] * 
+                np.arange(num_tracks) for i in range(num_entities)
+            ])
+        }
+
+        data = pd.DataFrame(data)
+
+        entity_ids = list(data.groupby(by="id").groups)
+
+        entity_idx_to_be_target = rand.randint(0, len(entity_ids) - 1)
+        
+        sus_path = data[data["id"] == entity_ids[entity_idx_to_be_target]]
+
+        entities_path = data[data["id"] != entity_ids[entity_idx_to_be_target]]
+        print("data:", data.groupby(["lat", "long", "height"]).apply(pd.DataFrame), "\n\n\n\n")
+
+        #print(sus_path)
+        # Create DataFrame and return
+        return (entities_path, sus_path)
